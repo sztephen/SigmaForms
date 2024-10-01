@@ -1,21 +1,98 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
+/* Reset some default browser styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
+/* Body styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Container to center content */
+.container {
+    width: 90%;
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background-color: #fff;
+    flex: 1;
+}
+
+/* Header styling */
 h1 {
     text-align: center;
+    margin-bottom: 20px;
 }
 
+/* Form creation section */
 #form-creator {
+    display: flex;
+    justify-content: center;
     margin-bottom: 20px;
 }
 
-#dynamic-form {
-    margin-bottom: 20px;
-}
-
-input, button {
+#form-creator input[type="text"] {
+    flex: 1;
     padding: 10px;
-    margin: 5px;
+    font-size: 16px;
+}
+
+#form-creator button {
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+/* Dynamic form styling */
+#dynamic-form label {
+    display: block;
+    margin: 10px 0 5px;
+}
+
+#dynamic-form input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+}
+
+/* Submit button styling */
+#submit-form {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    margin: 20px 0;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+#submit-form:hover {
+    background-color: #0056b3;
+}
+
+/* Results section */
+#results {
+    margin-top: 20px;
+}
+
+#results h2 {
+    margin-bottom: 10px;
+}
+
+#results p {
+    margin: 5px 0;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #ddd;
 }
