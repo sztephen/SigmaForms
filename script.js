@@ -1,22 +1,47 @@
 // Array to store questions
 let questions = [];
 
-// Check if there are questions in the URL
+// Form ID to differentiate forms (if multiple forms are created in future)
+const formId = 'mainForm'; // For simplicity, using a single form ID
+
+// DOM Elements
+const addQuestionBtn = document.getElementById('add-question');
+const generateLinkBtn = document.getElementById('generate-link');
+const openResultsBtn = document.getElementById('open-results');
+const questionInput = document.getElementById('question-input');
+const questionList = document.getElementById('question-list');
+const formSection = document.getElementById('form-section');
+const dynamicForm = document.getElementById('dynamic-form');
+const submitFormBtn = document.getElementById('submit-form');
+const resultsDiv = document.getElementById('results');
+
+// Password for accessing results
+const RESULTS_PASSWORD = 'sigmaforms';
+
+// Check if the URL has 'questions' parameter
 window.onload = function() {
     const params = new URLSearchParams(window.location.search);
     if (params.has('questions')) {
         const encodedQuestions = params.get('questions');
-        questions = JSON.parse(decodeURIComponent(atob(encodedQuestions)));
-        renderForm();
-        document.getElementById('form-section').style.display = 'block';
-        document.getElementById('form-creator').style.display = 'none';
-        document.getElementById('generate-link').style.display = 'none';
+        try {
+            questions = JSON.parse(decodeURIComponent(atob(encodedQuestions)));
+            renderForm();
+            formSection.style.display = 'block';
+            formCreatorVisibility(false);
+        } catch (error) {
+            alert('Invalid form link.');
+        }
     }
 };
 
-// Add question to the array
-document.getElementById('add-question').addEventListener('click', function() {
-    const questionInput = document.getElementById('question-input');
+// Toggle visibility of form creator section
+function formCreatorVisibility(visible) {
+    document.getElementById('form-creator').style.display = visible ? 'block' : 'none';
+    generateLinkBtn.style.display = visible ? 'block' : 'none';
+}
+
+// Add question to the list
+addQuestionBtn.addEventListener('click', function() {
     const questionText = questionInput.value.trim();
     if (questionText !== "") {
         questions.push(questionText);
@@ -27,67 +52,66 @@ document.getElementById('add-question').addEventListener('click', function() {
 
 // Display the list of questions
 function displayQuestions() {
-    const list = document.getElementById('question-list');
-    if (!list) {
-        const ul = document.createElement('ul');
-        ul.id = 'question-list';
-        document.getElementById('form-creator').appendChild(ul);
-    }
-    const ul = document.getElementById('question-list');
-    ul.innerHTML = '';
+    questionList.innerHTML = '';
     questions.forEach((question, index) => {
         const li = document.createElement('li');
         li.textContent = `${index + 1}. ${question}`;
-        ul.appendChild(li);
+        questionList.appendChild(li);
     });
 }
 
 // Generate shareable link
-document.getElementById('generate-link').addEventListener('click', function() {
+generateLinkBtn.addEventListener('click', function() {
     if (questions.length === 0) {
         alert('Please add at least one question.');
         return;
     }
     const encodedQuestions = btoa(encodeURIComponent(JSON.stringify(questions)));
     const url = `${window.location.origin}${window.location.pathname}?questions=${encodedQuestions}`;
-    prompt('Share this link:', url);
+    navigator.clipboard.writeText(url).then(() => {
+        alert('Shareable link copied to clipboard!');
+    }).catch(() => {
+        prompt('Copy your shareable link:', url);
+    });
 });
 
-// Function to render the form based on questions
+// Render the form based on questions
 function renderForm() {
-    const form = document.getElementById('dynamic-form');
-    form.innerHTML = '';
+    dynamicForm.innerHTML = '';
     questions.forEach((question, index) => {
         const label = document.createElement('label');
         label.textContent = question;
         const input = document.createElement('input');
         input.type = 'text';
         input.name = `answer${index}`;
-        form.appendChild(label);
-        form.appendChild(input);
+        input.required = true;
+        dynamicForm.appendChild(label);
+        dynamicForm.appendChild(input);
     });
 }
 
-// Handle form submission and store responses
-document.getElementById('submit-form').addEventListener('click', function() {
-    const form = document.getElementById('dynamic-form');
-    const formData = new FormData(form);
+// Handle form submission
+submitFormBtn.addEventListener('click', function(event) {
+    event.preventDefault();
+    const formData = new FormData(dynamicForm);
     let responses = {};
     formData.forEach((value, key) => {
-        responses[key] = value;
+        responses[key] = value.trim();
     });
+
     // Store responses in localStorage
     let storedResponses = JSON.parse(localStorage.getItem('formResponses')) || [];
     storedResponses.push(responses);
     localStorage.setItem('formResponses', JSON.stringify(storedResponses));
+
     alert('Your responses have been submitted!');
-    form.reset();
+    dynamicForm.reset();
 });
 
-// Password-protected results viewing
-document.getElementById('results-button').addEventListener('click', function() {
+// Open results with password protection
+openResultsBtn.addEventListener('click', function() {
     const password = prompt('Enter the password to view results:');
-    if (password === 'yourpassword') { // Replace 'yourpassword' with your desired password
+    if (password === RESULTS_PASSWORD) {
         displayResults();
     } else {
         alert('Incorrect password.');
@@ -96,7 +120,6 @@ document.getElementById('results-button').addEventListener('click', function() {
 
 // Function to display results
 function displayResults() {
-    const resultsDiv = document.getElementById('results');
     const storedResponses = JSON.parse(localStorage.getItem('formResponses')) || [];
     if (storedResponses.length === 0) {
         resultsDiv.innerHTML = '<p>No responses yet.</p>';
@@ -104,11 +127,15 @@ function displayResults() {
     }
     let resultsHTML = '<h2>Responses:</h2>';
     storedResponses.forEach((response, index) => {
-        resultsHTML += `<h3>Response ${index + 1}:</h3>`;
+        resultsHTML += `<div class="response">
+                            <h3>Response ${index + 1}</h3>`;
         Object.keys(response).forEach(key => {
-            const questionIndex = key.replace('answer', '');
-            resultsHTML += `<p><strong>${questions[questionIndex]}:</strong> ${response[key]}</p>`;
+            const questionIndex = parseInt(key.replace('answer', ''));
+            const question = questions[questionIndex] || 'Unknown Question';
+            const answer = response[key] || 'No Answer';
+            resultsHTML += `<p><strong>${question}:</strong> ${answer}</p>`;
         });
+        resultsHTML += `</div>`;
     });
     resultsDiv.innerHTML = resultsHTML;
 }
