@@ -2,28 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Simple Form Creator</title>
+    <title>Sigma Forms</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Simple Form Creator</h1>
+        <h1>Sigma Forms</h1>
 
         <!-- Form Creation Section -->
         <div id="form-creator">
             <input type="text" id="question-input" placeholder="Enter your question here">
             <button id="add-question">Add Question</button>
+            <ul id="question-list"></ul>
         </div>
 
         <!-- Generate Link Button -->
         <button id="generate-link">Generate Shareable Link</button>
 
         <!-- Dynamic Form Display -->
-        <div id="form-section" style="display:none;">
+        <div id="form-section">
             <h2>Your Form</h2>
             <form id="dynamic-form"></form>
             <button id="submit-form">Submit Form</button>
         </div>
+
+        <!-- Open Results Button -->
+        <button id="open-results">Open Results</button>
 
         <!-- Results Display -->
         <div id="results"></div>
@@ -31,7 +35,7 @@
 
     <!-- Footer -->
     <footer>
-        &copy; 2023 Your Name
+        &copy; 2024 Sigma Forms. All rights reserved.
     </footer>
 
     <!-- JavaScript File -->
